@@ -4,9 +4,10 @@ import 'package:flame/position.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
 
-import '../../scene/game_scene.dart';
+import '../../map/map_controller.dart';
 import '../../utils/preload_assets.dart';
 import '../entity.dart';
+import 'foundation.dart';
 
 class Furniture extends Entity {
   Sprite sprite;
@@ -16,12 +17,14 @@ class Furniture extends Entity {
 
   bool showLow = false;
   bool showCollisionBox = false;
+  final Foundation _foundation;
 
   double width, height;
 
   Furniture(
-      double newPosX, double newPosY, this.width, this.height, this.imageId)
-      : super(newPosX.floor() * 16.0 + 8, (newPosY.ceil() + 1) * 16.0) {
+      double newPosX, double newPosY, MapController map, this.width,
+      this.height, this.imageId, this._foundation)
+      : super(newPosX.floor() * 16.0 + 8, (newPosY.ceil() + 1) * 16.0, map) {
     loadSprite();
 
     shadownSize = 1;
@@ -46,12 +49,17 @@ class Furniture extends Entity {
   void draw(Canvas c) {
     if (currentSprite == null) return;
     if (currentSprite.src == null) return;
-    var scale = GameScene.pixelsPerTile/16;
+    var scale = map.scale;
+    //Offset center = _foundation.bounds.center;
+    var center = Offset(_foundation.left+_foundation.width/2,
+        _foundation.top+_foundation.height/2);
+    mapHeight = map.getHeightOnPos(center.dx.toInt(), center.dy.toInt());
+
     var pivot =
         Offset((zoom * 16) / 2, (currentSprite.size.y * 2) - height + 16);
 
     currentSprite.renderScaled(c, Position((x - pivot.dx)*scale,
-        (y - pivot.dy - z)*scale), scale: scale*2);
+        (y - pivot.dy - z)*scale - zOffset/1), scale: scale*2);
 
     //showCollisionBox = true;
     showCollisionBox ? debugDraw(c) : null;

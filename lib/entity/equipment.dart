@@ -20,13 +20,12 @@ class Equipment implements OnAnimationEnd {
   void loadSprite(String spriteFolder) async {
     var _viewPort = Rect.fromLTWH(0, 0, 32, 32);
     var _pivot = Offset(16, 24);
-    var _scale = 3.0;
     var framesCount = 0;
 
     equipmentWalk = SpriteController("equipment/weapons/$spriteFolder/walk",
-        _viewPort, _pivot, _scale, Offset(4, 1), framesCount, this);
+        _viewPort, _pivot, Offset(4, 1), framesCount, this);
     equipmentAttack = SpriteController("equipment/weapons/$spriteFolder/attack",
-        _viewPort, _pivot, _scale, Offset(5, 1), framesCount, this);
+        _viewPort, _pivot, Offset(5, 1), framesCount, this);
 
     currentSprite = equipmentWalk;
   }

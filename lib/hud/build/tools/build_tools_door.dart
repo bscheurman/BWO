@@ -87,7 +87,8 @@ class BuildToolsDoor extends BuildSubToolsBar {
       'h': height,
     };
     if (_furnitureBuild == null) {
-      _furnitureBuild = FurnitureBuild(doorData, _map);
+      _furnitureBuild = FurnitureBuild(doorData, _map,
+            _map.buildFoundation.myFoundation);
     }
     _furnitureBuild.isValidTerrain = isValid;
     _furnitureBuild.setup(doorData);

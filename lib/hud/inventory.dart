@@ -7,6 +7,7 @@ import '../entity/items/item_database.dart';
 import '../entity/items/items.dart';
 import '../entity/player/player.dart';
 import '../game_controller.dart';
+import '../map/map_controller.dart';
 import '../ui/hud.dart';
 import '../ui/ui_element.dart';
 import '../utils/tap_state.dart';
@@ -27,10 +28,10 @@ class Inventory extends UIElement {
   Sprite _bagSprite;
   Sprite _bagSpriteOpen;
 
-  Inventory(this._player, HUD hudRef) : super(hudRef) {
+  Inventory(this._player, HUD hudRef, MapController map) : super(hudRef) {
     drawOnHUD = true;
-    addItem(Item(0, 0, 0, itemListDatabase[2]));
-    addItem(Item(0, 0, 0, itemListDatabase[4]));
+    addItem(Item(0, 0, 0, map, itemListDatabase[2]));
+    addItem(Item(0, 0, 0, map, itemListDatabase[4]));
     loadSprite();
   }
 

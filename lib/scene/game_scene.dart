@@ -1,4 +1,3 @@
-import 'package:BWO/hud/build/build_hud.dart';
 import 'package:flame/anchor.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/position.dart';
@@ -8,6 +7,7 @@ import 'package:flutter/material.dart';
 import '../entity/enemys/enemy.dart';
 import '../entity/player/player.dart';
 import '../game_controller.dart';
+import '../hud/build/build_hud.dart';
 import '../map/map_controller.dart';
 import '../server/domain/usecases/server_controller.dart';
 import '../server/utils/server_utils.dart';

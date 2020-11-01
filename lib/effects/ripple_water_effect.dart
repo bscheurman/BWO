@@ -5,7 +5,7 @@ import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
 
 import '../game_controller.dart';
-import '../map/ground.dart';
+import '../map/map_data.dart';
 import '../utils/preload_assets.dart';
 
 class RippleWaterEffect {
@@ -19,7 +19,7 @@ class RippleWaterEffect {
   }
 
   void draw(Canvas c, double x, double y, int height) {
-    if (GameController.time > timeinFuture && height <  Ground.lowWater-3) {
+    if (GameController.time > timeinFuture && height <  Land.lowWater-3) {
       timeinFuture = GameController.time + .3;
 
       rippleEffects.add(Ripple(x, y));

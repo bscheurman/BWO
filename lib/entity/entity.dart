@@ -7,6 +7,9 @@ import 'package:flutter/material.dart';
 import '../effects/damage_effect.dart';
 import '../effects/ripple_water_effect.dart';
 import '../effects/walk_effect.dart';
+import '../hud/build/build_hud.dart';
+import '../map/map_controller.dart';
+import '../map/map_data.dart';
 import '../scene/game_scene.dart';
 import '../utils/preload_assets.dart';
 import 'physics_entity.dart';
@@ -25,6 +28,7 @@ abstract class Entity extends PhysicsEntity {
   int posX;
   int posY;
 
+  MapController map;
   int mapHeight = 1;
   double width = 16;
   double height = 16;
@@ -43,7 +47,7 @@ abstract class Entity extends PhysicsEntity {
   final WalkEffect _walkEffect = WalkEffect();
   final DamageEffect _damageEffect = DamageEffect();
 
-  Entity(double x, double y) : super(x, y) {
+  Entity(double x, double y, this.map) : super(x, y) {
     //worldSize = GameScene.tilePixels.toDouble();
 
     shadownLarge = PreloadAssets.getEffectSprite('shadown_large');
@@ -79,17 +83,28 @@ abstract class Entity extends PhysicsEntity {
       return;
     }
     var scale = GameScene.pixelsPerTile/16;
+
     _drawShadown(c);
     if (this is Player) {
-      _rippleWaterEffect.draw(c, x*scale, y*scale, mapHeight);
-      _walkEffect.draw(c, x*scale, y*scale, mapHeight, inputSpeed);
+      _rippleWaterEffect.draw(c, x*scale, y*scale - zOffset, mapHeight);
+      _walkEffect.draw(c, x*scale, y*scale - zOffset, mapHeight, inputSpeed);
     }
-    _damageEffect.draw(c, x*scale, y*scale);
+    _damageEffect.draw(c, x*scale, y*scale - zOffset);
+  }
+
+  double get zOffset {
+    // 2D in Building mode
+    if (map.buildingState != BuildButtonState.none){
+      return 0;
+    }
+    // Return z Offset based on height to follow 3D terrain
+    return max(0, (mapHeight - Land.lowWater) / map.vertFactor * map.scale * 8);
   }
 
   void _drawShadown(Canvas c) {
     var scale = GameScene.pixelsPerTile/16;
     var distanceToGround = 1 - (z.abs().clamp(0, 100) / 100);
+
     var p = Paint();
     p.color = Color.fromRGBO(255, 255, 255, distanceToGround);
 
@@ -100,7 +115,8 @@ abstract class Entity extends PhysicsEntity {
       c,
       Position(
         x * scale - sizeX * distanceToGround * scale + shadownOffset.dx * scale,
-        y * scale - sizeY * distanceToGround * scale + shadownOffset.dy * scale,
+        y * scale - sizeY * distanceToGround * scale + shadownOffset.dy * scale
+            - zOffset,
       ),
       scale: shadownSize * distanceToGround * scale,
       overridePaint: p,
@@ -136,4 +152,5 @@ abstract class Entity extends PhysicsEntity {
   String toString() {
     return """name: $name, (x: $x, y: $y), isActive: $isActive, isAlive: ${status.isAlive()}, hp: ${status.getHP()}, marketToBeRemoved: $marketToBeRemoved, id: $id""";
   }
+
 }

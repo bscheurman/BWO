@@ -7,8 +7,8 @@ import '../../entity/player/player.dart';
 import '../../entity/wall/door.dart';
 import '../../entity/wall/foundation.dart';
 import '../../entity/wall/furniture.dart';
-import '../../map/ground.dart';
 import '../../map/map_controller.dart';
+import '../../map/map_data.dart';
 import '../../map/tree.dart';
 import '../../scene/game_scene.dart';
 import '../../server/utils/server_utils.dart';
@@ -63,9 +63,10 @@ class BuildFoundation {
 
   void drawRoofs(Canvas c) {
     var t = TimerHelper();
-    foundationList.forEach((element) {
+    for (var element in foundationList){
       element.drawRoof(c);
-    });
+    }
+
     t.logDelayPassed("drawRoofs");
   }
 
@@ -123,10 +124,7 @@ class BuildFoundation {
     var bottom = top + h;
     for (var y = top; y < bottom; y++) {
       for (var x = left; x < right; x++) {
-        var isValidTile = _map.map[y] != null ? _map.map[y][x] != null : false;
-        if (!isValidTile) return false;
-
-        if (_map.map[y][x][0].height < Ground.lowWater) {
+        if (_map.getHeightOnPos(x, y) < Land.lowWater) {
           return true;
         }
       }
@@ -186,7 +184,8 @@ class BuildFoundation {
         replaceFurniture(foundationExists, foundationData['furnitures']);
       } else {
         print(
-            'ignore update while in build mode ${BuildHUD.buildBtState != BuildButtonState.build}');
+            'ignore update while in build mode ${BuildHUD.buildBtState
+                != BuildButtonState.build}');
       }
     } else {
       instantiateFoundation(foundationData);
@@ -262,7 +261,7 @@ class BuildFoundation {
   }
 
   void replaceWalls(Foundation currentFoundation, dynamic newWalls) async {
-    if (currentFoundation == null) return;
+    if (currentFoundation == null || newWalls == null) return;
     var t = TimerHelper();
 
     currentFoundation.wallList.forEach((key, wall) {
@@ -281,14 +280,14 @@ class BuildFoundation {
 
   // ------------------ floors -------------------------------
   void placeFloor(int selectedFloor) {
-    if (myFoundation == null) return;
+    if (myFoundation == null ) return;
     var tap = TapState.screenToWorldPoint(TapState.currentPosition, _map)
               / GameScene.pixelsPerTile;
     myFoundation.addFloor(tap.dx, tap.dy, selectedFloor);
   }
 
   void replaceFloors(Foundation currentFoundation, dynamic newFloors) {
-    if (currentFoundation == null) return;
+    if (currentFoundation == null || newFloors == null) return;
     var t = TimerHelper();
 
     currentFoundation.tileList.forEach((key, tile) {
@@ -311,8 +310,7 @@ class BuildFoundation {
   }
 
   void replaceFurniture(Foundation currentFoundation, dynamic newFurnitures) {
-    if (currentFoundation == null) return;
-    if (newFurnitures == null) return;
+    if (currentFoundation == null || newFurnitures == null) return;
     var t = TimerHelper();
 
     currentFoundation.furnitureList.forEach((key, furniture) {
@@ -328,9 +326,9 @@ class BuildFoundation {
 
       var furniture;
       if (id.startsWith('door')) {
-        furniture = Door(x, y, w, h, id);
+        furniture = Door(x, y, _map, w, h, id, currentFoundation);
       } else {
-        furniture = Furniture(x, y, w, h, id);
+        furniture = Furniture(x, y, _map, w, h, id, currentFoundation);
       }
 
       currentFoundation.addFurniture(furniture);
@@ -346,4 +344,7 @@ class BuildFoundation {
               / GameScene.pixelsPerTile;
     myFoundation.deleteFurniture(tap.dx, tap.dy);
   }
+
+  double getZOffset(int mapHeight) => max( 0, (mapHeight - Land.lowWater)
+      / _map.vertFactor * _map.scale*8);
 }

@@ -1,15 +1,18 @@
+import 'dart:math';
+
 import 'package:flame/position.dart';
 import 'package:flame/text_config.dart';
 import 'package:flutter/material.dart';
 
-import '../../map/ground.dart';
+import '../../hud/build/build_hud.dart';
 import '../../map/map_controller.dart';
-import '../../map/tile.dart';
+import '../../map/map_data.dart';
 import '../../scene/game_scene.dart';
 import '../../utils/tap_state.dart';
 import '../player/player.dart';
 import 'Roof.dart';
 import 'door.dart';
+import 'floor.dart';
 import 'furniture.dart';
 import 'wall.dart';
 
@@ -20,7 +23,7 @@ class Foundation {
   dynamic foundationData;
   //final List<Wall> wallList = [];
   final Map<String, Wall> wallList = {};
-  final Map<String, Tile> tileList = {};
+  final Map<String, Floor> tileList = {};
   final Map<String, Furniture> furnitureList = {};
   Roof roof = Roof();
   bool isValidTerrain = true;
@@ -58,7 +61,7 @@ class Foundation {
         var y = data['y'].toDouble();
         var imgId = data['id'];
 
-        var wall = Wall(x, y, imgId, this);
+        var wall = Wall(x, y, _map, imgId, this);
         wallList['_${wall.posX}_${wall.posY}'] = wall;
         _map.addEntity(wall);
       }
@@ -105,7 +108,7 @@ class Foundation {
 
   void addWall(double x, double y, int imgId) {
     if (isInsideFoundation(x, y)) {
-      var wall = Wall(x, y, imgId, this);
+      var wall = Wall(x, y, _map, imgId, this);
       switchWallHeight(wall);
 
       var foundWall = wallList[wall.id];
@@ -122,7 +125,7 @@ class Foundation {
 
   void deleteWall(double x, double y) {
     if (isInsideFoundation(x, y)) {
-      var wall = Wall(x, y, 1, this);
+      var wall = Wall(x, y, _map, 1, this);
 
       var foundWall = wallList[wall.id];
 
@@ -137,18 +140,13 @@ class Foundation {
     if (isInsideFoundation(x, y)) {
       var posX = x.floor();
       var posY = y.floor();
+      var center = Offset(left+width/2, top+height/2);
+      var mapHeight = _map.getHeightOnPos(center.dx.toInt(), center.dy.toInt());
 
-      var t = Tile(posX, posY, _map, Ground.lowGrass, 16, null,
+      var floor = Floor(posX, posY, _map, mapHeight, 16,
           tileSpritePath: 'floor$imgId', idImg: imgId);
-      tileList['_${posX}_$posY'] = t;
-
-      if (_map.map[posY] == null) {
-        _map.map[posY] = {posX: null}; //initialize line
-      }
-      if (_map.map[posY][posX] == null) {
-        _map.map[posY][posX] = {0: null}; //initialize line
-      }
-      _map.map[posY][posX][0] = t;
+      tileList['_${posX}_$posY'] = floor;
+      _map.floorTiles.add(floor);
     }
   }
 
@@ -293,7 +291,13 @@ class Foundation {
     wall.showCollisionBox = isBuildingMode;
     roof.show = (showWallLevel == WallLevel.upstair);
   }
-
+  double getZOffset(int mapHeight) {
+    if (_map.buildingState != BuildButtonState.none){
+      return 0;
+    }
+    return max(0, (mapHeight - Land.lowWater)
+        / _map.vertFactor * _map.scale * 8);
+  }
   void drawRoof(Canvas c) {
     if (!roof.show) return;
 
@@ -315,10 +319,14 @@ class Foundation {
         if (x == left + width - 1 && wallsOnLine > 1) {
           //last pos
           var lineSize = lastWallPos - firstWallPos;
+          var center = Offset(left+width/2, top+height/2);
+          var mapHeight = _map.getHeightOnPos(center.dx.toInt(),
+              center.dy.toInt());
+          var zOffset = getZOffset (mapHeight);
 
           for (var i = 0; i <= lineSize; i++) {
             roof?.draw(c, (firstWallPos + i) * 16*scale,
-                          y * 16*scale - 64*scale);
+                          y * 16*scale - 64*scale - zOffset/1);
           }
         }
       }

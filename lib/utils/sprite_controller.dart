@@ -4,6 +4,7 @@ import 'package:flame/sprite_batch.dart';
 import 'package:flutter/material.dart';
 
 import '../game_controller.dart';
+import '../map/map_data.dart';
 import '../scene/game_scene.dart';
 import 'on_animation_end.dart';
 
@@ -23,7 +24,6 @@ class SpriteController {
 
   final Rect _viewPort;
   final Offset _pivot;
-  final double _scale;
   final Offset _gradeSize;
   int framesCount;
 
@@ -34,7 +34,7 @@ class SpriteController {
 
   OnAnimationEnd onAnimEndCallback;
 
-  SpriteController(this.folder, this._viewPort, this._pivot, this._scale,
+  SpriteController(this.folder, this._viewPort, this._pivot,
       this._gradeSize, this.framesCount, this.onAnimEndCallback) {
     loadSprites(folder);
     if (framesCount == 0) {
@@ -119,7 +119,7 @@ class SpriteController {
             _viewPort.height;
     var scale = 3.0*GameScene.pixelsPerTile/16;
 
-    var sink = ((105 - height) * 0.15).clamp(0, 5);
+    var sink = ((Land.lowWater - 5 - height) * 0.15).clamp(0, 5);
     var offsetToPlayerFeet = 0;
     var frame = Rect.fromLTWH(
       x,

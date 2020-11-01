@@ -63,9 +63,9 @@ class Vector2 implements Vector {
         ..setFrom(other);
 
   /// Set the values of the vector.
-  void setValues(double x_, double y_) {
-    _v2storage[0] = x_;
-    _v2storage[1] = y_;
+  void setValues(double xv, double yv) {
+    _v2storage[0] = xv;
+    _v2storage[1] = yv;
   }
 
   /// Zero the vector.

@@ -36,7 +36,6 @@ class Player extends Entity implements OnAnimationEnd {
 
   PlayerActions playerActions;
   InputController _inputController;
-  final MapController _map;
 
   Inventory _inventory;
   // ignore: unused_field
@@ -49,18 +48,18 @@ class Player extends Entity implements OnAnimationEnd {
   EquipmentController equipmentController;
   bool canWalk = true;
 
-  Player(double x, double y, this._map, String myName, String myId,
+  Player(double x, double y, MapController map, String myName, String myId,
       this.sceneObject,
       {this.spriteFolder = "human/male1", this.isMine = false})
-      : super(x, y) {
+      : super(x, y, map) {
     playerActions = PlayerActions(this);
     playerNetwork = PlayerNetwork(this);
 
     if (isMine) {
-      _inventory = Inventory(this, sceneObject.hud);
+      _inventory = Inventory(this, sceneObject.hud, map);
       _playerHUD = PlayerHUD(this, sceneObject.hud);
-      BuildHUD(this, _map, sceneObject.hud);
-      _map.buildFoundation = BuildFoundation(this, _map);
+      BuildHUD(this, map, sceneObject.hud);
+      map.buildFoundation = BuildFoundation(this, map);
       equipmentController = EquipmentController(this);
       _inputController = InputController(this);
     }
@@ -75,7 +74,7 @@ class Player extends Entity implements OnAnimationEnd {
     if (isActive == false) {
       return;
     }
-    mapHeight = _map.getHeightOnPos(posX, posY);
+    mapHeight = map.getHeightOnPos(posX, posY);
 
     var maxWalkSpeed = 3.0;
     if (_inputController != null) {
@@ -94,14 +93,15 @@ class Player extends Entity implements OnAnimationEnd {
         animSpeed = 0.07;
       }
 
-      currentSprite.draw(c, x*_map.scale, y*_map.scale, xSpeed, ySpeed,
+      currentSprite.draw(c, x*map.scale, y*map.scale-zOffset, xSpeed, ySpeed,
               animSpeed, mapHeight, stopAnimWhenIdle: stopAnimWhenIdle);
 
       equipmentController?.draw(c, animSpeed,
           stopAnimWhenIdle: stopAnimWhenIdle);
     }
     //debugDraw(c);
-    _text.render(c, name, Position(x*_map.scale, y*_map.scale - 45*_map.scale),
+    _text.render(c, name, Position(x*map.scale,
+        y*map.scale - 45*map.scale - zOffset),
         anchor: Anchor.bottomCenter);
   }
 
@@ -115,15 +115,15 @@ class Player extends Entity implements OnAnimationEnd {
 
     slowSpeedWhenItSinks(mapHeight);
     moveWithPhysics();
-    playerActions.interactWithTrees(_map);
+    playerActions.interactWithTrees(map);
     playerNetwork.update();
   }
 
   void die(Canvas c) {
     if (status.isAlive() == false) {
       isActive = false;
-      _deathSprite?.renderScaled(c, Position(x*_map.scale - 16*_map.scale,
-          y*_map.scale - 32*_map.scale), scale: 2*_map.scale);
+      _deathSprite?.renderScaled(c, Position(x*map.scale - 16*map.scale,
+          y*map.scale - 32*map.scale), scale: 2*map.scale);
 
       if (!isMine) return;
 
@@ -186,9 +186,9 @@ class Player extends Entity implements OnAnimationEnd {
     height = 6 * _scale;
 
     walkSprites = SpriteController("$spriteFolder/walk", _viewPort, _pivot,
-        _scale, _gradeSize, _framesCount, this);
+        _gradeSize, _framesCount, this);
     attackSprites = SpriteController("$spriteFolder/attack", _viewPort, _pivot,
-        _scale, Offset(5, 1), _framesCount, this);
+        Offset(5, 1), _framesCount, this);
 
     currentSprite = walkSprites;
   }

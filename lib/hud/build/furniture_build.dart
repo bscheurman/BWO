@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../entity/wall/door.dart';
+import '../../entity/wall/foundation.dart';
 import '../../entity/wall/furniture.dart';
 import '../../map/map_controller.dart';
 import '../../utils/tap_state.dart';
@@ -13,11 +14,12 @@ class FurnitureBuild {
 
   bool isValidTerrain = false;
   final MapController _map;
+  final Foundation foundation;
 
   dynamic furnitureData;
   String furnitureId;
 
-  FurnitureBuild(dynamic mFurnitureData, this._map) {
+  FurnitureBuild(dynamic mFurnitureData, this._map, this.foundation) {
     setup(mFurnitureData);
   }
 
@@ -88,10 +90,10 @@ class FurnitureBuild {
   }
 
   Furniture getFurniture() {
-    return Furniture(left, top, width, height, furnitureId);
+    return Furniture(left, top, _map, width, height, furnitureId, foundation);
   }
 
   Door getDoor() {
-    return Door(left, top, width, height, furnitureId);
+    return Door(left, top, _map, width, height, furnitureId, foundation);
   }
 }

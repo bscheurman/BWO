@@ -2,12 +2,12 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:flame/animation.dart' as anim;
+import 'package:flame/flame.dart';
 import 'package:flame/position.dart';
 import 'package:flutter/material.dart';
 
 import '../game_controller.dart';
-import '../map/ground.dart';
-import '../server/utils/server_utils.dart';
+import '../map/map_data.dart';
 
 class WalkEffect {
   double animSpeed = 1;
@@ -28,28 +28,28 @@ class WalkEffect {
     var velocity = max(walkSpeed.dx.abs(), walkSpeed.dy.abs());
 
     if (velocity > 0) {
-      height < Ground.water
+      height < Land.water
           ? playStepSFX(velocity, "swim_1.mp3", .8, interval: .9)
           : null;
-      height >= Ground.water && height <= Ground.lowWater - 9
+      height >= Land.water && height <= Land.lowWater - 9
           ? playStepSFX(velocity, "footstep_water_splash.mp3", .3)
           : null;
-      height >= Ground.water + 9 && height <= Ground.lowWater
+      height >= Land.water + 9 && height <= Land.lowWater
           ? playStepSFX(velocity, "footstep_water_splash2.mp3", .4)
           : null;
-      height >= Ground.lowSand && height <= Ground.sand
+      height >= Land.lowSand && height <= Land.sand
           ? addSmokeFX(velocity, x, y)
           : null;
-      height >= Ground.lowSand && height <= Ground.sand
+      height >= Land.lowSand && height <= Land.sand
           ? playStepSFX(velocity, "footstep_sand_beech.mp3", .3)
           : null;
-      height >= Ground.sand && height <= Ground.lowGrass
+      height >= Land.sand && height <= Land.lowGrass
           ? playStepSFX(velocity, "footstep_grass2.mp3", .03)
           : null;
-      height >= Ground.lowGrass
+      height >= Land.lowGrass
           ? playStepSFX(velocity, "footstep_grass1.mp3", .2)
           : null;
-      height > Ground.lowGrass ? addGrassFX(velocity, x, y) : null;
+      height > Land.lowGrass ? addGrassFX(velocity, x, y) : null;
     }
 
     for (var effect in smokeEffects) {
@@ -91,8 +91,9 @@ class WalkEffect {
       var delay = interval + ((1 - (velocity / 3)) * 0.6);
 
       timeInFutureForSoundSteps = GameController.time + delay;
-      if (ServerUtils.database == 'production') {
-        //Flame.audio.play(audioName, volume: volume);
+      //if (ServerUtils.database == 'production')
+      {
+        Flame.audio.play(audioName, volume: volume);
       }
     }
   }

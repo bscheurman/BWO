@@ -105,6 +105,7 @@ class BuildHUD extends UIElement {
         _map.setZoom(2); // Zoom out
         _player.canWalk = true;
       }
+      _map.buildingState = buildBtState;
     }
   }
 

@@ -2,7 +2,7 @@ import 'package:flame/position.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
 
-import '../../scene/game_scene.dart';
+import '../../map/map_controller.dart';
 import '../../utils/preload_assets.dart';
 import '../entity.dart';
 import 'foundation.dart';
@@ -30,8 +30,8 @@ class Wall extends Entity {
 
   final Foundation _foundation;
 
-  Wall(double newPosX, double newPosY, this.imageId, this._foundation)
-      : super(newPosX.floor() * 16.0 + 8, newPosY.ceil() * 16.0) {
+  Wall(double newPosX, double newPosY, MapController map, this.imageId, this._foundation)
+      : super(newPosX.floor() * 16.0 + 8, newPosY.ceil() * 16.0, map) {
     _imgPath = getImageId(imageId);
     loadSprite();
 
@@ -67,16 +67,19 @@ class Wall extends Entity {
   void draw(Canvas c) {
     if (sprites.length == 0 || lowSprites.length == 0) return;
     var pivot = Offset((zoom * 16) / 2, height);
-    var scale = GameScene.pixelsPerTile/16;
+    var scale = map.scale;
+    var center = Offset(_foundation.left+_foundation.width/2,
+        _foundation.top+_foundation.height/2);
+    mapHeight = map.getHeightOnPos(center.dx.toInt(), center.dy.toInt());
 
     selectWallSprite();
 
     if (showLow) {
       currentLowSprite.renderScaled(c, Position((x - pivot.dx)*scale,
-          (y - pivot.dy - z)*scale), scale: scale);
+          (y - pivot.dy - z)*scale - zOffset/1), scale: scale);
     } else {
       currentSprite.renderScaled(c, Position((x - pivot.dx)*scale,
-          (y - pivot.dy - z)*scale), scale: scale);
+          (y - pivot.dy - z)*scale - zOffset/1), scale: scale);
     }
 
     showCollisionBox ? debugDraw(c) : null;

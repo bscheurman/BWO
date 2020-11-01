@@ -1,7 +1,9 @@
 import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
 
+import '../../map/map_controller.dart';
 import '../../utils/preload_assets.dart';
+import 'foundation.dart';
 import 'furniture.dart';
 
 class Door extends Furniture {
@@ -9,9 +11,9 @@ class Door extends Furniture {
   bool show = true;
   bool isOpen = false;
 
-  Door(double newPosX, double newPosY, double width, double height,
-      String imageId)
-      : super(newPosX, newPosY, width, height, imageId) {
+  Door(double newPosX, double newPosY, MapController map, double width,
+      double height, String imageId, Foundation foundation)
+      : super(newPosX, newPosY, map, width, height, imageId, foundation) {
     loadsprite();
   }
 

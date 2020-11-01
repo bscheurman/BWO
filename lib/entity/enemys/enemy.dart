@@ -14,14 +14,14 @@ import 'ia_controller.dart';
 import 'ia_network_controller.dart';
 
 class Enemy extends Entity implements OnAnimationEnd {
-  MapController map;
+
   IAController iaController;
   bool respawn = false;
   double respawnTime = 0;
   String spriteFolder;
 
-  Enemy(double x, double y, this.map, this.spriteFolder, String myId)
-      : super(x, y) {
+  Enemy(double x, double y, MapController map, this.spriteFolder, String myId)
+      : super(x, y, map) {
     _loadSprites(spriteFolder);
     shadownSize = 1.2;
     id = myId;
@@ -50,12 +50,13 @@ class Enemy extends Entity implements OnAnimationEnd {
         animSpeed = 0.07;
       }
 
-      currentSprite.draw(c, x*map.scale, y*map.scale, xSpeed, ySpeed,
+      currentSprite.draw(c, x*map.scale, y*map.scale-zOffset, xSpeed, ySpeed,
           animSpeed, mapHeight, stopAnimWhenIdle: stopAnimWhenIdle);
     }
     //debugDraw(c);
     TextConfig(fontSize: 11.0, color: Colors.white, fontFamily: "Blocktopia")
-        .render(c, name, Position(x*map.scale, y*map.scale - 32*map.scale),
+        .render(c, name, Position(x*map.scale,
+        y*map.scale - 45*map.scale - zOffset),
         anchor: Anchor.bottomCenter);
   }
 
@@ -103,9 +104,9 @@ class Enemy extends Entity implements OnAnimationEnd {
     height = 6 * _scale;
 
     walkSprites = SpriteController("$spriteFolder/walk", _viewPort, _pivot,
-        _scale, _gradeSize, framesCount, this);
+         _gradeSize, framesCount, this);
     attackSprites = SpriteController("$spriteFolder/attack", _viewPort, _pivot,
-        _scale, _gradeSize, framesCount, this);
+         _gradeSize, framesCount, this);
 
     currentSprite = walkSprites;
   }

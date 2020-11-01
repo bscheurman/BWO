@@ -29,12 +29,12 @@ class Tree extends Entity {
   double _deadRotation = 0;
   double _gravityRotation = 0;
 
-  final MapController _map;
+  //final MapController _map;
   double _deleteTime = double.infinity;
 
-  Tree(this._map, int posX, int posY, this._tileSize, this._spriteImage)
+  Tree(int posX, int posY, MapController map, this._tileSize, this._spriteImage)
       : super((posX.toDouble() * 16),
-            (posY.toDouble() * 16)) {
+            (posY.toDouble() * 16), map) {
     id = '_${x.toInt()}_${y.toInt()}';
 
     width = 2.0 * _tileSize;
@@ -51,23 +51,24 @@ class Tree extends Entity {
   void loadSprite() async {
     //_tree = await SpriteBatch.withAsset('trees/${_spriteImage}.png');
     _tree = PreloadAssets.getTreeSprite(_spriteImage);
+    mapHeight = map.getHeightOnPos(posX, posY);
     if (posX == null || posY == null || _tileSize == null) {
       return;
     }
     _tree.add(
-        rect: Rect.fromLTWH(0, 0, _tree.width.toDouble(), _tree.height.toDouble()),  // (0, 0, 16, 16),
+        rect: Rect.fromLTWH(0, 0, _tree.width.toDouble(), _tree.height.toDouble()),
         offset: Offset(
-            posX.toDouble() * _tileSize*_map.scale, (posY.toDouble() - 1)
-                          * _tileSize*_map.scale),
+            posX.toDouble() * _tileSize*map.scale, (posY.toDouble() - 1)
+                          * _tileSize*map.scale -zOffset),
         anchor: Offset(_tree.width/2, _tree.height.toDouble()-2),
-        scale: _tileSize.toDouble()*_map.scale*16/_tree.height,
+        scale: _tileSize.toDouble()*map.scale*16/_tree.height,
         rotation: 0 //-0.05
         );
   }
 
   @override
   void draw(Canvas c) {
-    if (_map.tilePix == 1) {
+    if (map.tilePix == 1) {
       return;
     }
     if (_tree != null) {
@@ -137,14 +138,15 @@ class Tree extends Entity {
   }
 
   void _updateFrame(double rot) {
+    mapHeight = map.getHeightOnPos(posX, posY);
     _tree.clear();
     _tree.add(
         rect: Rect.fromLTWH(0, 0, _tree.width.toDouble(), _tree.height.toDouble()),
         offset: Offset(
-            posX.toDouble() * _tileSize*_map.scale, (posY.toDouble() - 1)
-                        * _tileSize*_map.scale),
+            posX.toDouble() * _tileSize*map.scale, (posY.toDouble() - 1)
+                        * _tileSize*map.scale - zOffset),
         anchor: Offset(_tree.width/2, _tree.height.toDouble()-2),
-        scale: _tileSize.toDouble()*_map.scale*16/_tree.height,
+        scale: _tileSize.toDouble()*map.scale*16/_tree.height,
         rotation: rot //-0.05
         );
   }
@@ -178,7 +180,7 @@ class Tree extends Entity {
 
       var maca = _dropApple();
       if (maca != null) {
-        _map.addEntity(maca);
+        map.addEntity(maca);
       }
 
       if (status.isAlive() == false && hp > 0) {
@@ -195,7 +197,7 @@ class Tree extends Entity {
   Item _dropApple() {
     if (Random().nextInt(100) < 3 && _applesLeft > 0) {
       _applesLeft--;
-      return Item(x - 32, y, 100, itemListDatabase[0]);
+      return Item(x - 32, y, 100, map, itemListDatabase[0]);
     }
     return null;
   }
@@ -208,7 +210,7 @@ class Tree extends Entity {
       var rPosY = y + Random().nextInt(50).toDouble() - 25;
       var zPosZ = Random().nextInt(30).toDouble() + 10;
 
-      _map.addEntity(Item(rPosX, rPosY, zPosZ, itemListDatabase[1]));
+      map.addEntity(Item(rPosX, rPosY, zPosZ, map, itemListDatabase[1]));
     }
   }
 }

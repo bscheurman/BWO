@@ -44,7 +44,7 @@ class TreeDataController {
             foundTree.disable(respawnSecTimeout: 190 - deadTime);
           } else if (hp > 0 && damage == null) {
             //respawn
-            if (isInsideFoundation(
+            if (foundEntity != null && isInsideFoundation(
                 foundEntity.x.toDouble() / 16, foundEntity.y.toDouble() / 16)) ;
             foundTree.resetTree();
           }
@@ -54,11 +54,11 @@ class TreeDataController {
   }
 
   bool isInsideFoundation(double posX, double posY) {
-    map.buildFoundation.foundationList.forEach((foundation) {
+    for (var foundation in map.buildFoundation.foundationList) {
       if (foundation.isInsideFoundation(posX, posY)) {
         return true;
       }
-    });
+    };
     return false;
   }
 }

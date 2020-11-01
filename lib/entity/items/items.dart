@@ -4,6 +4,7 @@ import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
 
 import '../../game_controller.dart';
+import '../../map/map_controller.dart';
 import '../../scene/game_scene.dart';
 import '../entity.dart';
 import '../player/player.dart';
@@ -21,7 +22,8 @@ class Item extends Entity {
 
   int amount = 1;
 
-  Item(double x, double y, double z, this.proprieties) : super(x, y) {
+  Item(double x, double y, double z, MapController map, this.proprieties)
+      : super(x, y, map) {
     super.z = z;
     bounciness = 0.12;
     lifeTime = GameController.time + 16;
@@ -45,10 +47,11 @@ class Item extends Entity {
       }
       var scale = GameScene.pixelsPerTile/16;
       p.color = Color.fromRGBO(255, 255, 255, alphaBlink);
+      mapHeight = map.getHeightOnPos(posX, posY);
 
       var pivot = Offset((proprieties.zoom * 16) / 2, (proprieties.zoom * 16));
       sprite.renderScaled(c, Position((x - pivot.dx)*scale,
-          (y - pivot.dy - z)*scale), scale: proprieties.zoom*scale,
+          (y - pivot.dy - z)*scale - zOffset), scale: proprieties.zoom*scale,
           overridePaint: p);
       updatePhysics();
 

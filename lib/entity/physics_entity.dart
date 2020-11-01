@@ -1,7 +1,9 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+
 import '../game_controller.dart';
+import '../map/map_data.dart';
 
 abstract class PhysicsEntity {
   double x, y, z = 0;
@@ -70,7 +72,8 @@ abstract class PhysicsEntity {
   }
 
   void slowSpeedWhenItSinks(int mapHeight, {double slowSpeedFactor = 0.6}) {
-    var sink = ((105 - mapHeight) * 0.2).clamp(0, 4);
+    //print ('slowSpeedWhenItSinks $mapHeight');
+    var sink = ((Land.lowWater - 5 - mapHeight) * 0.2).clamp(0, 4);
     double slowFactor = 1 - ((sink * 0.25) * slowSpeedFactor);
 
     xSpeed *= slowFactor;
